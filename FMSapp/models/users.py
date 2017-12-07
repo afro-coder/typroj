@@ -9,7 +9,7 @@ class Roles(db.Model):
     __tablename__='roles'
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(50),unique=True,index=True)
-    users=db.relationship('Users',backref='role',lazy='dynamic')
+    users=db.relationship('User',backref='role',lazy='dynamic')
 
     def __repr__(self):
         return "<Roles %r >" %self.name
@@ -20,8 +20,9 @@ class Organization(db.Model):
     #user_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
     organization_domain=db.Column(db.String(25),unique=True,nullable=False,index=True)
     date_created=db.Column(db.DateTime,index=True,default=datetime.datetime.utcnow,nullable=False)
-    organization_rel_users=db.relationship('Users',backref='organization_user_id',lazy='dynamic')
-    organization_rel_users=db.relationship('Questions',backref='organization_question_id',lazy='dynamic')
+    organization_rel_users=db.relationship('User',backref='org_rel_users',lazy='dynamic')
+    organization_rel_ques=db.relationship('User',backref='org_rel_ques',lazy='dynamic')
+    #organization_rel_questions=db.relationship('Questions',foreign_keys=[org_id],lazy='dynamic')
 
     def __repr__(self):
         return "<Organization %r >" % self.organization_domain
@@ -29,8 +30,9 @@ class Organization(db.Model):
 class Questions(db.Model):
     __tablename__='questions'
     id=db.Column(db.Integer,primary_key=True)
-    question=db.Column(db.String(500),index=True,nullable=False)
-    organization_id=db.Column(db.Integer,db.ForeignKey('organization.id'),nullable=False)
+    question=db.Column(db.UnicodeText,index=True,nullable=False)
+    org_id=db.Column(db.Integer,db.ForeignKey('organization.id'),nullable=False)
+    org_rel_id=db.relationship('Organization',foreign_keys=[org_id],uselist=False)
     question_sub=db.relationship('Submissions',backref='question_sub',lazy='dynamic')
     def __repr__(self):
         return "<Questions %r>" %self.question
@@ -39,7 +41,7 @@ class Stream(db.Model):
     __tablename__='streams'
     id=db.Column(db.Integer,primary_key=True)
     stream=db.Column(db.String(50),index=True,nullable=False,unique=True)
-    sub_id=db.relationship('Submissions',backref='stream_id',lazy='dynamic')
+    sub_id=db.relationship('Submissions',backref='streamid',lazy='dynamic')
 
     def __repr__(self):
         return "<Stream %r>" %self.stream
@@ -64,6 +66,7 @@ class User(UserMixin,db.Model):
     lname=db.Column(db.String(50),nullable=False,index=True)
     #organization_name=db.Column(db.String(50),nullable=False,unique=True,index=True)
     organization_id=db.Column(db.Integer,db.ForeignKey('organization.id'),nullable=False)
+    organization_rel_users=db.relationship('Organization',foreign_keys=[organization_id],uselist=False)
     password_hash=db.Column(db.String(128),nullable=False)
     email=db.Column(db.String(30),unique=True,nullable=False,index=True)
     role_id=db.Column(db.Integer,db.ForeignKey('roles.id'))
@@ -156,7 +159,7 @@ class User(UserMixin,db.Model):
 
 
     def __repr__(self):
-        return "<Users %r >" % self.organization_name
+        return "<Users %r >" % self.fname
 
 
 
