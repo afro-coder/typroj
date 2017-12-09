@@ -65,8 +65,10 @@ class User(UserMixin,db.Model):
     fname=db.Column(db.String(50),nullable=False,index=True)
     lname=db.Column(db.String(50),nullable=False,index=True)
     #organization_name=db.Column(db.String(50),nullable=False,unique=True,index=True)
+
     organization_id=db.Column(db.Integer,db.ForeignKey('organization.id'),nullable=False)
     organization_rel_users=db.relationship('Organization',foreign_keys=[organization_id],uselist=False)
+
     password_hash=db.Column(db.String(128),nullable=False)
     email=db.Column(db.String(30),unique=True,nullable=False,index=True)
     role_id=db.Column(db.Integer,db.ForeignKey('roles.id'))
